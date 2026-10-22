@@ -31,6 +31,7 @@ import {
   CloseOutlined
 } from '@ant-design/icons'
 import { slugify, renderMarkdown, formatDateTime } from '../utils/markdown'
+import { normalizeMediaUrl } from '../utils/media'
 import { uploadMedia } from '../api'
 import dayjs from 'dayjs'
 
@@ -178,9 +179,10 @@ export function ArticleEditor({
   }
 
   return (
-    <div>
+    <div className="article-editor">
       {/* Top Header */}
       <div
+        className="article-editor-header"
         style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -190,7 +192,7 @@ export function ArticleEditor({
           gap: 12
         }}
       >
-        <Space size="middle">
+        <Space className="article-editor-heading" size="middle">
           <Button icon={<ArrowLeftOutlined />} onClick={onCancel}>
             Back
           </Button>
@@ -213,17 +215,19 @@ export function ArticleEditor({
           </div>
         </Space>
 
-        <Space wrap>
-          <Button icon={<EyeOutlined />} onClick={handlePreviewCurrent}>
+        <Space className="article-editor-actions" wrap>
+          <Button aria-label="Preview" title="Preview" icon={<EyeOutlined />} onClick={handlePreviewCurrent}>
             Preview
           </Button>
 
-          <Button icon={<SaveOutlined />} onClick={handleSave} loading={saving}>
+          <Button aria-label="Save Draft" title="Save Draft" icon={<SaveOutlined />} onClick={handleSave} loading={saving}>
             Save Draft
           </Button>
 
           <Button
             type="primary"
+            aria-label="Publish Now"
+            title="Publish Now"
             icon={<SendOutlined />}
             onClick={handlePublishImmediate}
             loading={saving}
@@ -232,6 +236,8 @@ export function ArticleEditor({
           </Button>
 
           <Button
+            aria-label="Schedule"
+            title="Schedule"
             icon={<ScheduleOutlined />}
             onClick={() => setIsScheduleModalOpen(true)}
             loading={saving}
@@ -243,6 +249,7 @@ export function ArticleEditor({
 
       {/* Main Form */}
       <Form
+        className="article-editor-form"
         form={form}
         layout="vertical"
         initialValues={{
@@ -279,7 +286,7 @@ export function ArticleEditor({
                 {isSlugManual ? (
                   <Input
                     size="small"
-                    style={{ width: 280, display: 'inline-block', marginLeft: 8 }}
+                    className="article-slug-input"
                     value={slug}
                     onChange={(e) => setSlug(slugify(e.target.value))}
                   />
@@ -308,6 +315,7 @@ export function ArticleEditor({
             </Card>
 
             <Card
+              className="article-content-card"
               title="Article Content"
               extra={
                 <Text type="secondary" style={{ fontSize: 12 }}>
@@ -323,10 +331,11 @@ export function ArticleEditor({
                     label: 'Editor',
                     children: (
                       <Input.TextArea
-                        rows={14}
+                        autoSize={{ minRows: 18, maxRows: 40 }}
                         placeholder="Explain what changed, why it helps traders, and how to use the new feature...&#10;&#10;### Key Highlights:&#10;- Real-time drawing sync across devices&#10;- Sub-second screener execution engine"
                         value={body}
                         onChange={(e) => setBody(e.target.value)}
+                        className="article-body-input"
                         style={{ fontFamily: 'monospace', fontSize: 13 }}
                       />
                     )
@@ -400,7 +409,7 @@ export function ArticleEditor({
               {coverMedia?.url ? (
                 <div>
                   <Image
-                    src={coverMedia.url}
+                    src={normalizeMediaUrl(coverMedia.url)}
                     style={{ width: '100%', maxHeight: 180, objectFit: 'cover', borderRadius: 6 }}
                   />
                   <div style={{ marginTop: 12, textAlign: 'right' }}>
@@ -473,7 +482,7 @@ export function ArticleEditor({
                       }}
                     >
                       <Image
-                        src={img.url}
+                        src={normalizeMediaUrl(img.url)}
                         width={50}
                         height={40}
                         style={{ objectFit: 'cover', borderRadius: 4 }}

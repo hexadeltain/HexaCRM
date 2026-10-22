@@ -12,6 +12,7 @@ const { Title, Text } = Typography
 export function Navbar({ onNavigate, apiStatus, onOpenSettings, onOpenMediaLibrary }) {
   return (
     <Header
+      className="app-navbar"
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -24,6 +25,7 @@ export function Navbar({ onNavigate, apiStatus, onOpenSettings, onOpenMediaLibra
       }}
     >
       <div
+        className="app-navbar-brand"
         style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
         onClick={() => onNavigate('list')}
       >
@@ -37,15 +39,16 @@ export function Navbar({ onNavigate, apiStatus, onOpenSettings, onOpenMediaLibra
               CMS
             </Tag>
           </div>
-          <Text type="secondary" style={{ fontSize: 12 }}>
+          <Text className="app-navbar-subtitle" type="secondary" style={{ fontSize: 12 }}>
             Content Management / Product Updates
           </Text>
         </div>
       </div>
 
-      <Space size="middle">
+      <Space className="app-navbar-actions" size="middle">
         {apiStatus && (
           <Badge
+            className="app-navbar-status"
             status={apiStatus.ok ? 'success' : 'error'}
             text={
               <span
@@ -60,10 +63,11 @@ export function Navbar({ onNavigate, apiStatus, onOpenSettings, onOpenMediaLibra
         )}
 
         <Button
+          className="app-navbar-media-button"
           icon={<PictureOutlined />}
           onClick={onOpenMediaLibrary}
         >
-          Media Library
+          <span>Media Library</span>
         </Button>
 
         <Button

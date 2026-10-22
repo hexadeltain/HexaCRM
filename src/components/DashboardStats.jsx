@@ -40,11 +40,11 @@ export function DashboardStats({ counts, activeFilter, onSelectFilter }) {
   ]
 
   return (
-    <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+    <Row className="dashboard-stats" gutter={[16, 16]} style={{ marginBottom: 24 }}>
       {items.map((item) => {
         const isSelected = activeFilter === item.id
         return (
-          <Col xs={24} sm={12} md={6} key={item.id}>
+          <Col xs={12} sm={12} md={6} key={item.id}>
             <Card
               hoverable
               onClick={() => onSelectFilter(item.id)}

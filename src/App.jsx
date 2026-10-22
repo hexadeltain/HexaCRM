@@ -271,12 +271,7 @@ export default function App() {
         />
 
         <Content
-          style={{
-            padding: '24px 32px',
-            maxWidth: 1400,
-            margin: '0 auto',
-            width: '100%'
-          }}
+          className="app-content"
         >
           {currentView === 'list' && (
             <>

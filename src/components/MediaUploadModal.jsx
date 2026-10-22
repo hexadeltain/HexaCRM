@@ -14,6 +14,7 @@ import {
 } from 'antd'
 import { InboxOutlined, CopyOutlined, LinkOutlined } from '@ant-design/icons'
 import { uploadMedia } from '../api'
+import { normalizeMediaUrl } from '../utils/media'
 
 const { Dragger } = Upload
 const { Title, Text } = Typography
@@ -108,7 +109,7 @@ export function MediaUploadModal({ isOpen, onClose }) {
                 cover={
                   <div style={{ height: 110, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Image
-                      src={item.url}
+                      src={normalizeMediaUrl(item.url)}
                       height={110}
                       style={{ objectFit: 'contain' }}
                     />
@@ -126,14 +127,19 @@ export function MediaUploadModal({ isOpen, onClose }) {
                   <Button
                     size="small"
                     icon={<CopyOutlined />}
-                    onClick={() => copyText(`![${item.alt || 'image'}](${item.url})`, 'Markdown')}
+                    onClick={() =>
+                      copyText(
+                        `![${item.alt || 'image'}](${normalizeMediaUrl(item.url)})`,
+                        'Markdown'
+                      )
+                    }
                   >
                     MD
                   </Button>
                   <Button
                     size="small"
                     icon={<LinkOutlined />}
-                    onClick={() => copyText(item.url, 'URL')}
+                    onClick={() => copyText(normalizeMediaUrl(item.url), 'URL')}
                   >
                     URL
                   </Button>

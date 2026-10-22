@@ -1,4 +1,5 @@
 // Lightweight, secure Markdown-to-HTML parser (0 dependencies, standard library regex)
+import { normalizeMediaUrl } from './media'
 
 export function renderMarkdown(markdown = '') {
   if (!markdown) return ''
@@ -18,7 +19,10 @@ export function renderMarkdown(markdown = '') {
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
 
   // Images: ![alt](url)
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" loading="lazy" />')
+  html = html.replace(
+    /!\[([^\]]*)\]\(([^)]+)\)/g,
+    (_, alt, url) => `<img src="${normalizeMediaUrl(url)}" alt="${alt}" loading="lazy" />`
+  )
 
   // Links: [text](url)
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')

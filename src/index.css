@@ -1,6 +1,289 @@
-/* Clean baseline reset for Ant Design */
-html, body, #root {
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
   margin: 0;
   padding: 0;
   min-height: 100%;
+}
+
+html,
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  -webkit-text-size-adjust: 100%;
+}
+
+.app-content {
+  width: 100%;
+  max-width: 1464px;
+  margin: 0 auto;
+  padding: 24px 32px;
+}
+
+.article-mobile-meta {
+  display: none;
+}
+
+.article-slug-input {
+  width: 280px;
+  display: inline-block;
+  margin-left: 8px;
+}
+
+@media (max-width: 767px) {
+  .app-navbar {
+    height: auto !important;
+    min-height: 64px;
+    padding: 10px 16px !important;
+    gap: 12px;
+  }
+
+  .app-navbar-brand {
+    min-width: 0;
+    gap: 8px !important;
+  }
+
+  .app-navbar-brand .ant-typography {
+    font-size: 18px;
+  }
+
+  .app-navbar-subtitle {
+    display: none;
+  }
+
+  .app-navbar-actions {
+    flex-shrink: 0;
+    gap: 8px !important;
+  }
+
+  .app-content {
+    padding: 16px;
+  }
+
+  .article-editor {
+    padding-bottom: 84px;
+  }
+
+  .article-editor-header {
+    align-items: flex-start !important;
+  }
+
+  .article-editor-heading {
+    min-width: 0;
+    align-items: flex-start !important;
+  }
+
+  .article-editor-heading .ant-space-item:last-child {
+    min-width: 0;
+  }
+
+  .article-editor-heading .ant-typography {
+    overflow-wrap: anywhere;
+  }
+
+  .article-editor-actions {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 1000;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px !important;
+    width: 100%;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(20, 20, 20, 0.97);
+    backdrop-filter: blur(12px);
+  }
+
+  .article-editor-actions .ant-space-item {
+    min-width: 0;
+  }
+
+  .article-editor-actions .ant-btn {
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    padding-inline: 4px;
+    font-size: 12px;
+  }
+
+  .article-editor-form > .ant-row {
+    row-gap: 16px !important;
+  }
+
+  .article-editor .ant-card {
+    margin-bottom: 16px !important;
+  }
+
+  .article-editor .ant-card-body {
+    padding: 16px;
+  }
+
+  .article-editor .ant-card-head {
+    min-height: 48px;
+    padding: 0 16px;
+  }
+
+  .article-editor .ant-card-head-wrapper {
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+
+  .article-editor .ant-card-extra {
+    margin-inline-start: 0;
+    padding: 0 0 10px;
+  }
+
+  .article-editor-form .ant-form-item {
+    margin-bottom: 18px;
+  }
+
+  .article-editor .ant-input,
+  .article-editor .ant-select-selector {
+    font-size: 16px;
+  }
+
+  .article-body-input {
+    min-height: 360px;
+    padding: 14px;
+    line-height: 1.65;
+    font-size: 16px !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .article-editor .ant-tabs-nav {
+    margin-bottom: 12px;
+  }
+
+  .article-editor .ant-tabs-tab {
+    padding: 10px 8px;
+  }
+
+  .article-slug-input {
+    width: min(100%, 280px) !important;
+    margin: 8px 0 !important;
+  }
+
+  .article-list-card .ant-card-body {
+    padding: 16px;
+  }
+
+  .article-list-header,
+  .article-list-filters {
+    align-items: stretch !important;
+  }
+
+  .article-list-header > .ant-btn {
+    width: 100%;
+  }
+
+  .article-list-filters {
+    flex-direction: column;
+  }
+
+  .article-list-filter-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch !important;
+    width: 100%;
+  }
+
+  .article-list-search {
+    width: 100% !important;
+  }
+
+  .article-list-filter-controls .ant-segmented {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .article-list-filter-controls .ant-select {
+    width: 100% !important;
+  }
+
+  .article-list-filters > .ant-btn {
+    align-self: flex-end;
+  }
+
+  .article-list-table .ant-table {
+    overflow-x: auto;
+  }
+
+  .article-list-table .ant-table-cell {
+    padding: 10px 8px !important;
+  }
+
+  .article-list-table .ant-table-cell .ant-typography {
+    overflow-wrap: anywhere;
+  }
+
+  .article-mobile-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+  }
+
+  .article-mobile-meta .ant-tag {
+    margin-inline-end: 0;
+  }
+}
+
+@media (max-width: 400px) {
+  .app-navbar {
+    padding-inline: 12px !important;
+  }
+
+  .app-navbar-status .ant-badge-status-text,
+  .app-navbar-media-button > span:not(.anticon) {
+    display: none;
+  }
+
+  .app-navbar-media-button {
+    width: 40px;
+    padding-inline: 0;
+  }
+
+  .app-content {
+    padding: 12px;
+  }
+
+  .article-editor-header {
+    gap: 10px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .article-editor-heading {
+    gap: 8px !important;
+  }
+
+  .article-editor-heading .ant-btn {
+    padding-inline: 10px;
+  }
+
+  .article-editor-heading h4 {
+    font-size: 16px;
+  }
+
+  .article-editor-actions {
+    gap: 6px !important;
+    padding-inline: 8px;
+  }
+
+  .article-editor-actions .ant-btn {
+    font-size: 0;
+  }
+
+  .article-editor-actions .ant-btn .anticon {
+    font-size: 16px;
+  }
 }

@@ -2,6 +2,7 @@ import React from 'react'
 import { Modal, Typography, Tag, Space, Image, Divider } from 'antd'
 import { ClockCircleOutlined, UserOutlined } from '@ant-design/icons'
 import { renderMarkdown, formatDate, formatDateTime } from '../utils/markdown'
+import { normalizeMediaUrl } from '../utils/media'
 
 const { Title, Text, Paragraph } = Typography
 
@@ -26,7 +27,7 @@ export function ArticlePreviewModal({ article, onClose }) {
       {article.cover?.url && (
         <div style={{ marginBottom: 16 }}>
           <Image
-            src={article.cover.url}
+            src={normalizeMediaUrl(article.cover.url)}
             alt={article.title}
             style={{
               width: '100%',
@@ -84,7 +85,7 @@ export function ArticlePreviewModal({ article, onClose }) {
               {article.images.map((img, i) => (
                 <div key={i}>
                   <Image
-                    src={img.url}
+                    src={normalizeMediaUrl(img.url)}
                     width={180}
                     height={110}
                     style={{ objectFit: 'cover', borderRadius: 6 }}

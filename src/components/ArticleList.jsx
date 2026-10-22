@@ -24,6 +24,7 @@ import {
   PictureOutlined
 } from '@ant-design/icons'
 import { formatDate, formatDateTime } from '../utils/markdown'
+import { normalizeMediaUrl } from '../utils/media'
 
 const { Title, Text } = Typography
 
@@ -86,10 +87,11 @@ export function ArticleList({
       dataIndex: 'cover',
       key: 'cover',
       width: 80,
+      responsive: ['sm'],
       render: (cover) =>
         cover?.url ? (
           <Image
-            src={cover.url}
+            src={normalizeMediaUrl(cover.url)}
             width={60}
             height={40}
             style={{ objectFit: 'cover', borderRadius: 4 }}
@@ -128,6 +130,10 @@ export function ArticleList({
               v{record.version}
             </Tag>
           )}
+          <div className="article-mobile-meta">
+            {getCategoryTag(record.category)}
+            {getStatusTag(record)}
+          </div>
           {record.summary && (
             <div>
               <Text type="secondary" ellipsis style={{ maxWidth: 450, display: 'block', fontSize: 12 }}>
@@ -143,6 +149,7 @@ export function ArticleList({
       dataIndex: 'category',
       key: 'category',
       width: 140,
+      responsive: ['sm'],
       render: (category) => getCategoryTag(category)
     },
     {
@@ -150,12 +157,14 @@ export function ArticleList({
       dataIndex: 'status',
       key: 'status',
       width: 130,
+      responsive: ['sm'],
       render: (_, record) => getStatusTag(record)
     },
     {
       title: 'Date',
       key: 'date',
       width: 160,
+      responsive: ['sm'],
       render: (_, record) => {
         const isFuture = record.published_at && new Date(record.published_at) > new Date()
         if (record.status === 'PUBLISHED' && isFuture) {
@@ -185,7 +194,7 @@ export function ArticleList({
     {
       title: 'Actions',
       key: 'actions',
-      width: 160,
+      width: 140,
       align: 'right',
       render: (_, record) => (
         <Space size="small">
@@ -243,9 +252,10 @@ export function ArticleList({
   ]
 
   return (
-    <Card>
+    <Card className="article-list-card">
       {/* Header Bar */}
       <div
+        className="article-list-header"
         style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -271,6 +281,7 @@ export function ArticleList({
 
       {/* Filter and Search Bar */}
       <div
+        className="article-list-filters"
         style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -280,12 +291,13 @@ export function ArticleList({
           gap: 12
         }}
       >
-        <Space wrap>
+        <Space className="article-list-filter-controls" wrap>
           <Input.Search
             placeholder="Search articles..."
             allowClear
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
+            className="article-list-search"
             style={{ width: 240 }}
           />
 
@@ -320,10 +332,12 @@ export function ArticleList({
 
       {/* Ant Design Standard Table */}
       <Table
+        className="article-list-table"
         dataSource={articles}
         columns={columns}
         rowKey="id"
         loading={loading}
+        scroll={{ x: 460 }}
         pagination={{
           defaultPageSize: 10,
           showSizeChanger: true,
