@@ -21,10 +21,12 @@ import {
   ClockCircleOutlined,
   DeleteOutlined,
   ReloadOutlined,
-  PictureOutlined
+  PictureOutlined,
+  NotificationOutlined
 } from '@ant-design/icons'
 import { formatDate, formatDateTime } from '../utils/markdown'
 import { normalizeMediaUrl } from '../utils/media'
+import { findCategory, useCategories } from '../hooks/useCategories'
 
 const { Title, Text } = Typography
 
@@ -42,8 +44,10 @@ export function ArticleList({
   onPreviewArticle,
   onQuickPublish,
   onArchiveArticle,
+  onAddWidget,
   onRefresh
 }) {
+  const { categories } = useCategories()
   const getStatusTag = (record) => {
     const isFuture = record.published_at && new Date(record.published_at) > new Date()
     if (record.status === 'PUBLISHED' && isFuture) {
@@ -66,19 +70,15 @@ export function ArticleList({
     }
   }
 
-  const getCategoryTag = (category) => {
-    switch (category) {
-      case 'feature':
-        return <Tag color="purple">New Feature</Tag>
-      case 'improvement':
-        return <Tag color="green">Improvement</Tag>
-      case 'bugfix':
-        return <Tag color="red">Bug Fix</Tag>
-      case 'announcement':
-        return <Tag color="geekblue">Announcement</Tag>
-      default:
-        return <Tag>{category || 'Update'}</Tag>
-    }
+  // Name and colour come from the Categories section; a deleted one shows its slug.
+  const getCategoryTag = (slug) => {
+    const category = findCategory(categories, slug)
+    return (
+      <Tag color={category?.color}>
+        {category?.name || slug || 'Update'}
+        {category?.section === 'blog' ? ' · Blog' : ''}
+      </Tag>
+    )
   }
 
   const columns = [
@@ -194,7 +194,7 @@ export function ArticleList({
     {
       title: 'Actions',
       key: 'actions',
-      width: 140,
+      width: 170,
       align: 'right',
       render: (_, record) => (
         <Space size="small">
@@ -215,6 +215,12 @@ export function ArticleList({
               onClick={() => onEditArticle(record.id)}
             />
           </Tooltip>
+
+          {record.status !== 'ARCHIVED' && onAddWidget && (
+            <Tooltip title="Add a widget (banner, popup…) for this update">
+              <Button type="text" size="small" icon={<NotificationOutlined />} onClick={() => onAddWidget(record.id)} />
+            </Tooltip>
+          )}
 
           {record.status === 'DRAFT' && (
             <Tooltip title="Publish immediately">
@@ -316,13 +322,10 @@ export function ArticleList({
           <Select
             value={categoryFilter}
             onChange={onCategoryFilterChange}
-            style={{ width: 150 }}
+            style={{ width: 180 }}
             options={[
-              { value: '', label: 'All Categories' },
-              { value: 'feature', label: 'New Feature' },
-              { value: 'improvement', label: 'Improvement' },
-              { value: 'bugfix', label: 'Bug Fix' },
-              { value: 'announcement', label: 'Announcement' }
+              { value: '', label: 'All categories' },
+              ...categories.map((c) => ({ value: c.slug, label: c.section === 'blog' ? `${c.name} (blog)` : c.name })),
             ]}
           />
         </Space>

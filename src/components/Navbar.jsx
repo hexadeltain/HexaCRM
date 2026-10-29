@@ -1,15 +1,22 @@
 import React from 'react'
-import { Layout, Space, Typography, Tag, Button, Badge } from 'antd'
+import { Layout, Space, Typography, Tag, Button, Badge, Segmented } from 'antd'
 import {
   SettingOutlined,
   PictureOutlined,
   ThunderboltFilled
 } from '@ant-design/icons'
 
+const SECTIONS = [
+  { value: 'articles', label: 'Updates' },
+  { value: 'categories', label: 'Categories' },
+  { value: 'widgets', label: 'Widgets' },
+  { value: 'analytics', label: 'Analytics' },
+]
+
 const { Header } = Layout
 const { Title, Text } = Typography
 
-export function Navbar({ onNavigate, apiStatus, onOpenSettings, onOpenMediaLibrary }) {
+export function Navbar({ section, onSectionChange, onNavigate, apiStatus, onOpenSettings, onOpenMediaLibrary }) {
   return (
     <Header
       className="app-navbar"
@@ -40,10 +47,12 @@ export function Navbar({ onNavigate, apiStatus, onOpenSettings, onOpenMediaLibra
             </Tag>
           </div>
           <Text className="app-navbar-subtitle" type="secondary" style={{ fontSize: 12 }}>
-            Content Management / Product Updates
+            Content, widgets & analytics
           </Text>
         </div>
       </div>
+
+      <Segmented className="app-navbar-sections" value={section} onChange={onSectionChange} options={SECTIONS} />
 
       <Space className="app-navbar-actions" size="middle">
         {apiStatus && (

@@ -7,6 +7,9 @@ import { ArticleEditor } from './components/ArticleEditor'
 import { ArticlePreviewModal } from './components/ArticlePreviewModal'
 import { MediaUploadModal } from './components/MediaUploadModal'
 import { SettingsModal } from './components/SettingsModal'
+import { CategoriesPage } from './components/CategoriesPage'
+import { WidgetsPage } from './components/widgets/WidgetsPage'
+import { AnalyticsPage } from './components/analytics/AnalyticsPage'
 import {
   fetchArticles,
   fetchArticle,
@@ -20,7 +23,15 @@ import {
 const { Content } = Layout
 
 export default function App() {
-  const [currentView, setCurrentView] = useState('list') // 'list' | 'create' | 'edit'
+  const [section, setSection] = useState('articles') // 'articles' | 'categories' | 'widgets' | 'analytics'
+  const [currentView, setCurrentView] = useState('list') // 'list' | 'create' | 'edit' (articles section)
+  // "Add widget" on an article: open the Widgets section with a new widget linked to it.
+  const [widgetForArticleId, setWidgetForArticleId] = useState(null)
+  const handleAddWidget = useCallback((articleId) => {
+    setWidgetForArticleId(articleId)
+    setSection('widgets')
+  }, [])
+  const clearWidgetPreset = useCallback(() => setWidgetForArticleId(null), [])
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -264,7 +275,12 @@ export default function App() {
     >
       <Layout style={{ minHeight: '100vh', background: '#141414' }}>
         <Navbar
-          onNavigate={(view) => setCurrentView(view)}
+          section={section}
+          onSectionChange={setSection}
+          onNavigate={(view) => {
+            setSection('articles')
+            setCurrentView(view)
+          }}
           apiStatus={apiStatus}
           onOpenSettings={() => setIsSettingsModalOpen(true)}
           onOpenMediaLibrary={() => setIsMediaModalOpen(true)}
@@ -273,7 +289,13 @@ export default function App() {
         <Content
           className="app-content"
         >
-          {currentView === 'list' && (
+          {section === 'categories' && <CategoriesPage />}
+          {section === 'widgets' && (
+            <WidgetsPage presetArticleId={widgetForArticleId} onPresetConsumed={clearWidgetPreset} />
+          )}
+          {section === 'analytics' && <AnalyticsPage />}
+
+          {section === 'articles' && currentView === 'list' && (
             <>
               <DashboardStats
                 counts={counts}
@@ -295,12 +317,13 @@ export default function App() {
                 onPreviewArticle={handlePreviewArticle}
                 onQuickPublish={handleQuickPublish}
                 onArchiveArticle={handleArchiveArticle}
+                onAddWidget={handleAddWidget}
                 onRefresh={loadArticles}
               />
             </>
           )}
 
-          {(currentView === 'create' || currentView === 'edit') && (
+          {section === 'articles' && (currentView === 'create' || currentView === 'edit') && (
             <ArticleEditor
               isNew={currentView === 'create'}
               article={activeArticle}

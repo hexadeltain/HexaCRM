@@ -4,7 +4,6 @@ import {
   Form,
   Input,
   Select,
-  Radio,
   Button,
   Space,
   Row,
@@ -33,10 +32,16 @@ import {
 import { slugify, renderMarkdown, formatDateTime } from '../utils/markdown'
 import { normalizeMediaUrl } from '../utils/media'
 import { uploadMedia } from '../api'
+import { useCategories } from '../hooks/useCategories'
 import dayjs from 'dayjs'
 
 const { Title, Text, Paragraph } = Typography
 const { Dragger } = Upload
+
+const CATEGORY_SECTIONS = [
+  { id: 'update', label: 'Product update' },
+  { id: 'blog', label: 'Blog' },
+]
 
 export function ArticleEditor({
   article,
@@ -50,6 +55,7 @@ export function ArticleEditor({
   onPreview
 }) {
   const [form] = Form.useForm()
+  const { categories, loading: categoriesLoading } = useCategories()
   const [title, setTitle] = useState(article?.title || '')
   const [slug, setSlug] = useState(article?.slug || '')
   const [isSlugManual, setIsSlugManual] = useState(Boolean(article?.slug))
@@ -366,23 +372,22 @@ export function ArticleEditor({
           {/* Right Column: Category, Metadata, Media, Publishing */}
           <Col xs={24} lg={8}>
             <Card title="Category &amp; Details" style={{ marginBottom: 24 }}>
-              <Form.Item name="category" label="Update Category" required>
-                <Radio.Group style={{ width: '100%' }}>
-                  <Space direction="vertical" style={{ width: '100%' }}>
-                    <Radio value="feature">
-                      <Tag color="purple">New Feature</Tag>
-                    </Radio>
-                    <Radio value="improvement">
-                      <Tag color="green">Improvement</Tag>
-                    </Radio>
-                    <Radio value="bugfix">
-                      <Tag color="red">Bug Fix</Tag>
-                    </Radio>
-                    <Radio value="announcement">
-                      <Tag color="geekblue">Announcement</Tag>
-                    </Radio>
-                  </Space>
-                </Radio.Group>
+              <Form.Item
+                name="category"
+                label="Category"
+                required
+                extra="Product update categories show in the terminal's What's new; blog ones don't light the unread dot."
+              >
+                <Select
+                  loading={categoriesLoading}
+                  placeholder="Pick a category"
+                  options={CATEGORY_SECTIONS.map((sec) => ({
+                    label: sec.label,
+                    options: categories
+                      .filter((c) => c.section === sec.id && (c.is_active || c.slug === article?.category))
+                      .map((c) => ({ value: c.slug, label: <Tag color={c.color}>{c.name}</Tag> })),
+                  })).filter((group) => group.options.length > 0)}
+                />
               </Form.Item>
 
               <Divider style={{ margin: '16px 0' }} />
