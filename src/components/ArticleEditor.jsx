@@ -10,7 +10,6 @@ import {
   Col,
   Typography,
   Upload,
-  Tabs,
   Modal,
   DatePicker,
   Tag,
@@ -29,10 +28,11 @@ import {
   DeleteOutlined,
   CloseOutlined
 } from '@ant-design/icons'
-import { slugify, renderMarkdown, formatDateTime } from '../utils/markdown'
+import { slugify, formatDateTime } from '../utils/markdown'
 import { normalizeMediaUrl } from '../utils/media'
 import { uploadMedia } from '../api'
 import { useCategories } from '../hooks/useCategories'
+import { HtmlEditor } from './HtmlEditor'
 import dayjs from 'dayjs'
 
 const { Title, Text, Paragraph } = Typography
@@ -56,6 +56,11 @@ export function ArticleEditor({
 }) {
   const [form] = Form.useForm()
   const { categories, loading: categoriesLoading } = useCategories()
+  const watchedCategory = Form.useWatch('category', form)
+  const currentCategorySlug = watchedCategory || article?.category
+  const isBlog = categories.some((c) => c.slug === currentCategorySlug && c.section === 'blog')
+  const itemTypeLabel = isBlog ? 'Blog Post' : 'Product Update'
+
   const [title, setTitle] = useState(article?.title || '')
   const [slug, setSlug] = useState(article?.slug || '')
   const [isSlugManual, setIsSlugManual] = useState(Boolean(article?.slug))
@@ -205,7 +210,7 @@ export function ArticleEditor({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Title level={4} style={{ margin: 0 }}>
-                {isNew ? 'Create Product Update' : 'Edit Product Update'}
+                {isNew ? `Create ${itemTypeLabel}` : `Edit ${itemTypeLabel}`}
               </Title>
               <Tag color={article?.status === 'PUBLISHED' ? 'success' : 'processing'}>
                 {article?.status || 'Draft'}
@@ -322,49 +327,28 @@ export function ArticleEditor({
 
             <Card
               className="article-content-card"
-              title="Article Content"
+              title={
+                <Space>
+                  <span>{isBlog ? 'Blog Content' : 'Article Content'}</span>
+                  <Tag color="cyan">HTML &amp; Rich Text</Tag>
+                </Space>
+              }
               extra={
                 <Text type="secondary" style={{ fontSize: 12 }}>
-                  Markdown &amp; HTML supported
+                  Visual editor, HTML source &amp; live preview
                 </Text>
               }
             >
-              <Tabs
-                defaultActiveKey="edit"
-                items={[
-                  {
-                    key: 'edit',
-                    label: 'Editor',
-                    children: (
-                      <Input.TextArea
-                        autoSize={{ minRows: 18, maxRows: 40 }}
-                        placeholder="Explain what changed, why it helps traders, and how to use the new feature...&#10;&#10;### Key Highlights:&#10;- Real-time drawing sync across devices&#10;- Sub-second screener execution engine"
-                        value={body}
-                        onChange={(e) => setBody(e.target.value)}
-                        className="article-body-input"
-                        style={{ fontFamily: 'monospace', fontSize: 13 }}
-                      />
-                    )
-                  },
-                  {
-                    key: 'preview',
-                    label: 'Live Preview',
-                    children: (
-                      <div
-                        style={{
-                          minHeight: 280,
-                          padding: 16,
-                          background: 'rgba(255, 255, 255, 0.02)',
-                          borderRadius: 8,
-                          border: '1px solid rgba(255, 255, 255, 0.08)'
-                        }}
-                        dangerouslySetInnerHTML={{
-                          __html: renderMarkdown(body || '*No content written yet.*')
-                        }}
-                      />
-                    )
-                  }
-                ]}
+              <HtmlEditor
+                value={body}
+                onChange={setBody}
+                coverMedia={coverMedia}
+                galleryImages={galleryImages}
+                placeholder={
+                  isBlog
+                    ? 'Write your blog post here... Use the toolbar above to format headings, bold, italic, insert links, images, and tables.'
+                    : 'Explain what changed, why it helps traders, and how to use the new feature...'
+                }
               />
             </Card>
           </Col>

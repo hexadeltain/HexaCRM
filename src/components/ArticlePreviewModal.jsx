@@ -71,6 +71,7 @@ export function ArticlePreviewModal({ article, onClose }) {
       <Divider style={{ margin: '16px 0' }} />
 
       <div
+        className="article-preview-modal"
         style={{ fontSize: 14, lineHeight: 1.7 }}
         dangerouslySetInnerHTML={{
           __html: renderMarkdown(article.body || '*No content provided.*')

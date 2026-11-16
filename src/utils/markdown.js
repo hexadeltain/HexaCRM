@@ -1,11 +1,42 @@
-// Lightweight, secure Markdown-to-HTML parser (0 dependencies, standard library regex)
+// Lightweight, secure Markdown-to-HTML and HTML sanitizer (0 dependencies, standard library regex)
 import { normalizeMediaUrl } from './media'
+
+export function isHtml(text = '') {
+  if (!text || typeof text !== 'string') return false
+  return /<\/?(?:p|h[1-6]|div|span|ul|ol|li|blockquote|a|strong|b|em|i|u|s|del|table|thead|tbody|tr|td|th|pre|code|img|br|hr)\b/i.test(text)
+}
+
+export function sanitizeHtml(html = '') {
+  if (!html) return ''
+  return html
+    // Remove scripts and object/embed/iframe tags
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+    // Remove inline event handlers
+    .replace(/\s+on[a-z]+\s*=\s*(['"]).*?\1/gi, '')
+    .replace(/\s+on[a-z]+\s*=\s*[^>\s]+/gi, '')
+    // Disarm javascript: URLs
+    .replace(/(href|src)\s*=\s*(['"])\s*javascript:[^'"]*\2/gi, '$1="#"')
+    // Ensure all links open in a new tab safely if target is not specified
+    .replace(/<a\b(?![^>]*\btarget=)([^>]+)>/gi, '<a target="_blank" rel="noopener noreferrer" $1>')
+    // Ensure existing target="_blank" has rel="noopener noreferrer"
+    .replace(/<a\b([^>]*\btarget=(['"])_blank\2)(?![^>]*\brel=)([^>]+)>/gi, '<a $1 rel="noopener noreferrer" $3>')
+    // Normalize image URLs
+    .replace(/<img\b([^>]*?)\bsrc=(['"])(.*?)\2([^>]*)>/gi, (_, before, q, src, after) => {
+      return `<img ${before}src=${q}${normalizeMediaUrl(src)}${q}${after}>`
+    })
+}
 
 export function renderMarkdown(markdown = '') {
   if (!markdown) return ''
 
+  // If content is already HTML, sanitize and return directly
+  if (isHtml(markdown)) {
+    return sanitizeHtml(markdown)
+  }
+
   let html = markdown
-    // Escape standard HTML tags for safety (except if explicitly entered)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -33,7 +64,7 @@ export function renderMarkdown(markdown = '') {
   html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>')
 
   // Blockquotes (> text)
-  html = html.replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>')
+  html = html.replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
 
   // Bold & Italic
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')

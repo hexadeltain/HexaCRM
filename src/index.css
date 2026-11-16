@@ -287,3 +287,233 @@ body {
     font-size: 16px;
   }
 }
+
+/* =========================================================
+   HTML / Rich Text Editor Styling
+   ========================================================= */
+.html-editor-wrapper {
+  width: 100%;
+}
+
+.html-editor-container {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.html-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.html-editor-toolbar .ant-btn {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.html-editor-toolbar .ant-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.html-editor-content {
+  min-height: 380px;
+  max-height: 650px;
+  overflow-y: auto;
+  padding: 16px 20px;
+  outline: none;
+  font-size: 15px;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.88);
+  position: relative;
+  word-break: break-word;
+}
+
+.html-editor-content:focus {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Empty placeholder */
+.html-editor-content:empty::before {
+  content: attr(data-placeholder);
+  color: rgba(255, 255, 255, 0.28);
+  pointer-events: none;
+  font-style: italic;
+}
+
+/* Typography inside Editor & Previews */
+.html-editor-content p,
+.html-editor-preview p,
+.article-preview-modal p {
+  margin: 0 0 16px 0;
+}
+
+.html-editor-content h1,
+.html-editor-preview h1,
+.article-preview-modal h1 {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 24px 0 12px 0;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.html-editor-content h2,
+.html-editor-preview h2,
+.article-preview-modal h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 20px 0 10px 0;
+  color: #ffffff;
+  line-height: 1.35;
+}
+
+.html-editor-content h3,
+.html-editor-preview h3,
+.article-preview-modal h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 18px 0 8px 0;
+  color: #ffffff;
+  line-height: 1.4;
+}
+
+.html-editor-content h4,
+.html-editor-preview h4,
+.article-preview-modal h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 14px 0 6px 0;
+  color: #ffffff;
+}
+
+.html-editor-content a,
+.html-editor-preview a,
+.article-preview-modal a {
+  color: #1677ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s;
+  cursor: pointer;
+}
+
+.html-editor-content a:hover,
+.html-editor-preview a:hover,
+.article-preview-modal a:hover {
+  color: #4096ff;
+}
+
+.html-editor-content ul,
+.html-editor-preview ul,
+.article-preview-modal ul {
+  list-style-type: disc;
+  margin: 0 0 16px 0;
+  padding-left: 24px;
+}
+
+.html-editor-content ol,
+.html-editor-preview ol,
+.article-preview-modal ol {
+  list-style-type: decimal;
+  margin: 0 0 16px 0;
+  padding-left: 24px;
+}
+
+.html-editor-content li,
+.html-editor-preview li,
+.article-preview-modal li {
+  margin-bottom: 6px;
+  padding-left: 4px;
+}
+
+.html-editor-content blockquote,
+.html-editor-preview blockquote,
+.article-preview-modal blockquote {
+  border-left: 4px solid #1677ff;
+  margin: 16px 0;
+  padding: 10px 16px;
+  background: rgba(22, 119, 255, 0.06);
+  border-radius: 0 6px 6px 0;
+  color: rgba(255, 255, 255, 0.75);
+  font-style: italic;
+}
+
+.html-editor-content code,
+.html-editor-preview code,
+.article-preview-modal code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: Consolas, Monaco, monospace;
+  font-size: 0.9em;
+  color: #e6f4ff;
+}
+
+.html-editor-content pre,
+.html-editor-preview pre,
+.article-preview-modal pre {
+  background: #0d0d0d;
+  padding: 14px 18px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 16px 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.html-editor-content pre code,
+.html-editor-preview pre code,
+.article-preview-modal pre code {
+  background: transparent;
+  padding: 0;
+  color: #f0f0f0;
+}
+
+.html-editor-content img,
+.html-editor-preview img,
+.article-preview-modal img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 14px 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.html-editor-content table,
+.html-editor-preview table,
+.article-preview-modal table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+
+.html-editor-content th,
+.html-editor-preview th,
+.article-preview-modal th {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  font-weight: 600;
+  text-align: left;
+}
+
+.html-editor-content td,
+.html-editor-preview td,
+.article-preview-modal td {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 8px 12px;
+}
+
+.html-editor-content hr,
+.html-editor-preview hr,
+.article-preview-modal hr {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  margin: 24px 0;
+}
