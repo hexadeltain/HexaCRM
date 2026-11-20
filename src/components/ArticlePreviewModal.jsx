@@ -1,5 +1,5 @@
-import React from 'react'
-import { Modal, Typography, Tag, Space, Image, Divider } from 'antd'
+import React, { useState } from 'react'
+import { Modal, Typography, Tag, Space, Image, Divider, Segmented } from 'antd'
 import { ClockCircleOutlined, UserOutlined } from '@ant-design/icons'
 import { renderMarkdown, formatDate, formatDateTime } from '../utils/markdown'
 import { normalizeMediaUrl } from '../utils/media'
@@ -9,20 +9,32 @@ const { Title, Text, Paragraph } = Typography
 export function ArticlePreviewModal({ article, onClose }) {
   if (!article) return null
 
+  const [previewTheme, setPreviewTheme] = useState('blog') // 'blog' (light) | 'dark'
   const isFuture = article.published_at && new Date(article.published_at) > new Date()
 
   return (
     <Modal
       title={
-        <Space>
-          <span>What's New in HexaDelta</span>
-          <Tag color="blue">Preview</Tag>
-        </Space>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: 24 }}>
+          <Space>
+            <span>What's New in HexaDelta</span>
+            <Tag color="blue">Preview</Tag>
+          </Space>
+          <Segmented
+            size="small"
+            value={previewTheme}
+            onChange={setPreviewTheme}
+            options={[
+              { label: 'Blog View (Light)', value: 'blog' },
+              { label: 'Dark View', value: 'dark' }
+            ]}
+          />
+        </div>
       }
       open={Boolean(article)}
       onCancel={onClose}
       footer={null}
-      width={720}
+      width={780}
     >
       {article.cover?.url && (
         <div style={{ marginBottom: 16 }}>
@@ -71,8 +83,20 @@ export function ArticlePreviewModal({ article, onClose }) {
       <Divider style={{ margin: '16px 0' }} />
 
       <div
-        className="article-preview-modal"
-        style={{ fontSize: 14, lineHeight: 1.7 }}
+        className={previewTheme === 'blog' ? 'blog-reader-preview' : 'article-preview-modal'}
+        style={
+          previewTheme === 'blog'
+            ? {
+                fontSize: 15,
+                lineHeight: 1.8,
+                background: '#ffffff',
+                color: '#1f2937',
+                padding: '24px 28px',
+                borderRadius: 8,
+                border: '1px solid #e5e7eb'
+              }
+            : { fontSize: 14, lineHeight: 1.7 }
+        }
         dangerouslySetInnerHTML={{
           __html: renderMarkdown(article.body || '*No content provided.*')
         }}

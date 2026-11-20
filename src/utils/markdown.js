@@ -3,12 +3,43 @@ import { normalizeMediaUrl } from './media'
 
 export function isHtml(text = '') {
   if (!text || typeof text !== 'string') return false
-  return /<\/?(?:p|h[1-6]|div|span|ul|ol|li|blockquote|a|strong|b|em|i|u|s|del|table|thead|tbody|tr|td|th|pre|code|img|br|hr)\b/i.test(text)
+  return (
+    /<\/?(?:p|h[1-6]|div|span|ul|ol|li|blockquote|a|strong|b|em|i|u|s|del|table|thead|tbody|tr|td|th|pre|code|img|br|hr)\b/i.test(text) ||
+    /&lt;\/?(?:p|h[1-6]|div|span|ul|ol|li|blockquote|a|strong|b|em|i|u|s|del|table|thead|tbody|tr|td|th|pre|code|img|br|hr)\b/i.test(text)
+  )
+}
+
+/**
+ * Cleans rich text output into direct semantic HTML:
+ * - Decodes entity-escaped HTML tags
+ * - Strips dark-mode inline styles and font-size overrides on spans
+ * - Unwraps styled spans inside headings
+ * - Removes empty paragraphs and excess br tags
+ * - Fixes nested li > p structure
+ */
+export function cleanHtmlOutput(html = '') {
+  if (!html) return ''
+  return html
+    // 1. Decode entities if entire tags were escaped
+    .replace(/&lt;(\/?(?:p|h[1-6]|div|span|ul|ol|li|blockquote|a|strong|b|em|i|u|s|del|table|thead|tbody|tr|td|th|pre|code|img|br|hr)\b[^&]*)&gt;/gi, '<$1>')
+    // 2. Remove unwanted Chrome-injected inline span styles from contentEditable
+    .replace(/<span\s+style="[^"]*font-size:\s*15px;?[^"]*">(.*?)<\/span>/gi, '$1')
+    .replace(/<span\s+style="[^"]*color:\s*rgba\(255,\s*255,\s*255[^"]*">(.*?)<\/span>/gi, '$1')
+    // 3. Remove any spans inside headings (h1-h6) that only hold styling
+    .replace(/<(h[1-6])>\s*<span[^>]*>(.*?)<\/span>\s*<\/\1>/gi, '<$1>$2</$1>')
+    // 4. Remove empty paragraphs and empty tags
+    .replace(/<p>\s*(?:<br\s*\/?>|&nbsp;|\s)*<\/p>/gi, '')
+    // 5. Fix nested li > p
+    .replace(/<li>\s*<p>(.*?)<\/p>\s*<\/li>/gi, '<li>$1</li>')
+    // 6. Clean loose data attributes
+    .replace(/\sdata-[^=]+="[^"]*"/g, '')
+    .trim()
 }
 
 export function sanitizeHtml(html = '') {
   if (!html) return ''
-  return html
+  const cleaned = cleanHtmlOutput(html)
+  return cleaned
     // Remove scripts and object/embed/iframe tags
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
     .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')

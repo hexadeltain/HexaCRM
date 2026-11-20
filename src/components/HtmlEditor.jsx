@@ -11,6 +11,7 @@ import {
   Typography,
   Tag,
   Divider,
+  Segmented,
   message
 } from 'antd'
 import {
@@ -32,7 +33,7 @@ import {
   EditOutlined,
   MinusOutlined
 } from '@ant-design/icons'
-import { renderMarkdown, isHtml } from '../utils/markdown'
+import { renderMarkdown, isHtml, cleanHtmlOutput } from '../utils/markdown'
 import { normalizeMediaUrl } from '../utils/media'
 
 const { Text } = Typography
@@ -48,6 +49,17 @@ export function HtmlEditor({
   const editorRef = useRef(null)
   const lastHtmlRef = useRef('')
   const savedRangeRef = useRef(null)
+  const [previewTheme, setPreviewTheme] = useState('blog') // 'blog' (light) | 'dark'
+
+  const handleDirectClean = () => {
+    const cleaned = cleanHtmlOutput(value)
+    onChange?.(cleaned)
+    if (editorRef.current) {
+      editorRef.current.innerHTML = cleaned
+      lastHtmlRef.current = cleaned
+    }
+    message.success('Cleaned to direct semantic HTML format!')
+  }
 
   // Link Modal State
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false)
@@ -448,6 +460,16 @@ export function HtmlEditor({
                         onClick={() => executeCmd('redo')}
                       />
                     </Tooltip>
+                    <Tooltip title="Direct Format (Cleans empty tags & unwanted styles)">
+                      <Button
+                        size="small"
+                        type="dashed"
+                        onClick={handleDirectClean}
+                        style={{ fontSize: 11, padding: '0 8px' }}
+                      >
+                        Direct Format
+                      </Button>
+                    </Tooltip>
                   </Space>
                 </div>
 
@@ -486,6 +508,9 @@ export function HtmlEditor({
                     Edit the direct HTML markup below. Changes immediately sync to the Visual Editor and Live Preview.
                   </Text>
                   <Space size="small">
+                    <Button size="small" type="primary" onClick={handleDirectClean}>
+                      Direct Format
+                    </Button>
                     <Button
                       size="small"
                       onClick={() => {
@@ -493,7 +518,7 @@ export function HtmlEditor({
                         const pretty = (value || '')
                           .replace(/>\s*</g, '>\n<')
                           .replace(/(<[^/][^>]*>)/g, '$1')
-                        onChange?.(pretty)
+                        onChange?.(cleanHtmlOutput(pretty))
                         message.success('HTML formatted')
                       }}
                     >
@@ -525,19 +550,59 @@ export function HtmlEditor({
               </span>
             ),
             children: (
-              <div
-                className="html-editor-preview"
-                style={{
-                  minHeight: 350,
-                  padding: '24px 28px',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  borderRadius: 8,
-                  border: '1px solid rgba(255, 255, 255, 0.08)'
-                }}
-                dangerouslySetInnerHTML={{
-                  __html: renderMarkdown(value || '<p><em>No content written yet.</em></p>')
-                }}
-              />
+              <div>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 12
+                  }}
+                >
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    {previewTheme === 'blog'
+                      ? 'Simulating the live public blog reader layout on hexadelta.in'
+                      : 'Simulating the dark terminal update reader'}
+                  </Text>
+                  <Space size="small">
+                    <Text style={{ fontSize: 12 }}>Preview Theme:</Text>
+                    <Segmented
+                      size="small"
+                      value={previewTheme}
+                      onChange={setPreviewTheme}
+                      options={[
+                        { label: 'Blog View (Light)', value: 'blog' },
+                        { label: 'Dark View', value: 'dark' }
+                      ]}
+                    />
+                  </Space>
+                </div>
+                <div
+                  className={previewTheme === 'blog' ? 'blog-reader-preview' : 'html-editor-preview'}
+                  style={
+                    previewTheme === 'blog'
+                      ? {
+                          minHeight: 350,
+                          padding: '32px 36px',
+                          background: '#ffffff',
+                          color: '#1f2937',
+                          borderRadius: 12,
+                          border: '1px solid #e5e7eb',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                        }
+                      : {
+                          minHeight: 350,
+                          padding: '24px 28px',
+                          background: 'rgba(255, 255, 255, 0.02)',
+                          borderRadius: 8,
+                          border: '1px solid rgba(255, 255, 255, 0.08)'
+                        }
+                  }
+                  dangerouslySetInnerHTML={{
+                    __html: renderMarkdown(value || '<p><em>No content written yet.</em></p>')
+                  }}
+                />
+              </div>
             )
           }
         ]}

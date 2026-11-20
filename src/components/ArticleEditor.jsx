@@ -28,7 +28,7 @@ import {
   DeleteOutlined,
   CloseOutlined
 } from '@ant-design/icons'
-import { slugify, formatDateTime } from '../utils/markdown'
+import { slugify, formatDateTime, cleanHtmlOutput } from '../utils/markdown'
 import { normalizeMediaUrl } from '../utils/media'
 import { uploadMedia } from '../api'
 import { useCategories } from '../hooks/useCategories'
@@ -143,7 +143,7 @@ export function ArticleEditor({
       title: (values.title || title).trim(),
       slug: slug.trim() || undefined,
       summary: values.summary?.trim() || null,
-      body: body || null,
+      body: body ? cleanHtmlOutput(body) : null,
       category: values.category || 'feature',
       version: values.version?.trim() || null,
       author_name: values.author_name?.trim() || null,
