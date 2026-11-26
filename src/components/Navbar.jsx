@@ -10,6 +10,7 @@ const SECTIONS = [
   { value: 'articles', label: 'Updates' },
   { value: 'categories', label: 'Categories' },
   { value: 'widgets', label: 'Widgets' },
+  { value: 'screeners', label: 'Screeners' },
   { value: 'analytics', label: 'Analytics' },
 ]
 

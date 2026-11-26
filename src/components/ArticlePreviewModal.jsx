@@ -1,131 +1,180 @@
 import React, { useState } from 'react'
-import { Modal, Typography, Tag, Space, Image, Divider, Segmented } from 'antd'
-import { ClockCircleOutlined, UserOutlined } from '@ant-design/icons'
-import { renderMarkdown, formatDate, formatDateTime } from '../utils/markdown'
+import { Modal, Typography, Tag, Space, Image, Divider, Segmented, Button } from 'antd'
+import { ClockCircleOutlined, UserOutlined, InstagramOutlined } from '@ant-design/icons'
+import { renderMarkdown, formatDate, formatDateTime, stripHtml } from '../utils/markdown'
 import { normalizeMediaUrl } from '../utils/media'
+import { SocialPostCard, SocialPostModal } from './SocialPostModal'
 
 const { Title, Text, Paragraph } = Typography
 
 export function ArticlePreviewModal({ article, onClose }) {
+  const [previewTheme, setPreviewTheme] = useState('blog') // 'blog' (light) | 'dark' | 'social'
+  const [isSocialModalOpen, setIsSocialModalOpen] = useState(false)
+
   if (!article) return null
 
-  const [previewTheme, setPreviewTheme] = useState('blog') // 'blog' (light) | 'dark'
-  const isFuture = article.published_at && new Date(article.published_at) > new Date()
+  const isFuture = article.published_at && new Date(article.published_at).getTime() > Date.now()
 
   return (
-    <Modal
-      title={
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: 24 }}>
-          <Space>
-            <span>What's New in HexaDelta</span>
-            <Tag color="blue">Preview</Tag>
-          </Space>
-          <Segmented
-            size="small"
-            value={previewTheme}
-            onChange={setPreviewTheme}
-            options={[
-              { label: 'Blog View (Light)', value: 'blog' },
-              { label: 'Dark View', value: 'dark' }
-            ]}
-          />
-        </div>
-      }
-      open={Boolean(article)}
-      onCancel={onClose}
-      footer={null}
-      width={780}
-    >
-      {article.cover?.url && (
-        <div style={{ marginBottom: 16 }}>
-          <Image
-            src={normalizeMediaUrl(article.cover.url)}
-            alt={article.title}
-            style={{
-              width: '100%',
-              maxHeight: 260,
-              objectFit: 'cover',
-              borderRadius: 8
-            }}
-          />
-        </div>
-      )}
-
-      <Space wrap style={{ marginBottom: 12 }}>
-        <Tag color="purple">{article.category || 'Feature'}</Tag>
-        {article.version && <Tag>v{article.version}</Tag>}
-        <Text type="secondary" style={{ fontSize: 12 }}>
-          <ClockCircleOutlined style={{ marginRight: 4 }} />
-          {isFuture
-            ? `Scheduled: ${formatDateTime(article.published_at)}`
-            : article.published_at
-            ? formatDate(article.published_at)
-            : 'Draft (Unpublished)'}
-        </Text>
-        {article.author_name && (
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            <UserOutlined style={{ marginRight: 4 }} />
-            {article.author_name}
-          </Text>
-        )}
-      </Space>
-
-      <Title level={3} style={{ margin: '8px 0 12px 0' }}>
-        {article.title}
-      </Title>
-
-      {article.summary && (
-        <Paragraph type="secondary" style={{ fontSize: 15, lineHeight: 1.6 }}>
-          {article.summary}
-        </Paragraph>
-      )}
-
-      <Divider style={{ margin: '16px 0' }} />
-
-      <div
-        className={previewTheme === 'blog' ? 'blog-reader-preview' : 'article-preview-modal'}
-        style={
-          previewTheme === 'blog'
-            ? {
-                fontSize: 15,
-                lineHeight: 1.8,
-                background: '#ffffff',
-                color: '#1f2937',
-                padding: '24px 28px',
-                borderRadius: 8,
-                border: '1px solid #e5e7eb'
-              }
-            : { fontSize: 14, lineHeight: 1.7 }
-        }
-        dangerouslySetInnerHTML={{
-          __html: renderMarkdown(article.body || '*No content provided.*')
-        }}
-      />
-
-      {article.images && article.images.length > 0 && (
-        <div style={{ marginTop: 24 }}>
-          <Title level={5}>Attached Media</Title>
-          <Image.PreviewGroup>
-            <Space wrap size="middle">
-              {article.images.map((img, i) => (
-                <div key={i}>
-                  <Image
-                    src={normalizeMediaUrl(img.url)}
-                    width={180}
-                    height={110}
-                    style={{ objectFit: 'cover', borderRadius: 6 }}
-                  />
-                  {img.caption && (
-                    <Text type="secondary" style={{ display: 'block', fontSize: 12, marginTop: 4 }}>
-                      {img.caption}
-                    </Text>
-                  )}
-                </div>
-              ))}
+    <>
+      <Modal
+        title={
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: 24 }}>
+            <Space>
+              <span>What's New in HexaDelta</span>
+              <Tag color="blue">Preview</Tag>
             </Space>
-          </Image.PreviewGroup>
-        </div>
-      )}
-    </Modal>
+            <Segmented
+              size="small"
+              value={previewTheme}
+              onChange={setPreviewTheme}
+              options={[
+                { label: 'Blog View (Light)', value: 'blog' },
+                { label: 'Dark View', value: 'dark' },
+                { label: 'Social Post', value: 'social' }
+              ]}
+            />
+          </div>
+        }
+        open={Boolean(article)}
+        onCancel={onClose}
+        footer={null}
+        width={780}
+      >
+        {previewTheme === 'social' ? (
+          <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: 440, alignItems: 'center' }}>
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                Instagram Marketing Post:
+              </Text>
+              <Button
+                type="primary"
+                size="small"
+                icon={<InstagramOutlined />}
+                onClick={() => setIsSocialModalOpen(true)}
+              >
+                Customize & Export (1080p)
+              </Button>
+            </div>
+
+            <SocialPostCard
+              headline={article.title}
+              bodyText={
+                article.summary ||
+                (stripHtml(article.body || '').length > 280
+                  ? stripHtml(article.body || '').slice(0, 275) + '...'
+                  : stripHtml(article.body || ''))
+              }
+              authorName={article.author_name || 'Mehul Rajodiya'}
+              avatarUrl="/MehulRajodia.jpg"
+              logoUrl="/logo.png"
+              brandName="Hexadelta.in"
+              aspectRatio="portrait"
+              theme="light"
+            />
+          </div>
+        ) : (
+          <>
+            {article.cover?.url && (
+              <div style={{ marginBottom: 16 }}>
+                <Image
+                  src={normalizeMediaUrl(article.cover.url)}
+                  alt={article.title}
+                  style={{
+                    width: '100%',
+                    maxHeight: 260,
+                    objectFit: 'cover',
+                    borderRadius: 8
+                  }}
+                />
+              </div>
+            )}
+
+            <Space wrap style={{ marginBottom: 12 }}>
+              <Tag color="purple">{article.category || 'Feature'}</Tag>
+              {article.version && <Tag>v{article.version}</Tag>}
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                <ClockCircleOutlined style={{ marginRight: 4 }} />
+                {isFuture
+                  ? `Scheduled: ${formatDateTime(article.published_at)}`
+                  : article.published_at
+                  ? formatDate(article.published_at)
+                  : 'Draft (Unpublished)'}
+              </Text>
+              {article.author_name && (
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  <UserOutlined style={{ marginRight: 4 }} />
+                  {article.author_name}
+                </Text>
+              )}
+            </Space>
+
+            <Title level={3} style={{ margin: '8px 0 12px 0' }}>
+              {article.title}
+            </Title>
+
+            {article.summary && (
+              <Paragraph type="secondary" style={{ fontSize: 15, lineHeight: 1.6 }}>
+                {article.summary}
+              </Paragraph>
+            )}
+
+            <Divider style={{ margin: '16px 0' }} />
+
+            <div
+              className={previewTheme === 'blog' ? 'blog-reader-preview' : 'article-preview-modal'}
+              style={
+                previewTheme === 'blog'
+                  ? {
+                      fontSize: 15,
+                      lineHeight: 1.8,
+                      background: '#ffffff',
+                      color: '#1f2937',
+                      padding: '24px 28px',
+                      borderRadius: 8,
+                      border: '1px solid #e5e7eb'
+                    }
+                  : { fontSize: 14, lineHeight: 1.7 }
+              }
+              dangerouslySetInnerHTML={{
+                __html: renderMarkdown(article.body || '*No content provided.*')
+              }}
+            />
+
+            {article.images && article.images.length > 0 && (
+              <div style={{ marginTop: 24 }}>
+                <Title level={5}>Attached Media</Title>
+                <Image.PreviewGroup>
+                  <Space wrap size="middle">
+                    {article.images.map((img, i) => (
+                      <div key={i}>
+                        <Image
+                          src={normalizeMediaUrl(img.url)}
+                          width={180}
+                          height={110}
+                          style={{ objectFit: 'cover', borderRadius: 6 }}
+                        />
+                        {img.caption && (
+                          <Text type="secondary" style={{ display: 'block', fontSize: 12, marginTop: 4 }}>
+                            {img.caption}
+                          </Text>
+                        )}
+                      </div>
+                    ))}
+                  </Space>
+                </Image.PreviewGroup>
+              </div>
+            )}
+          </>
+        )}
+      </Modal>
+
+      {/* Social Post Customizer & Export Modal */}
+      <SocialPostModal
+        article={article}
+        open={isSocialModalOpen}
+        onClose={() => setIsSocialModalOpen(false)}
+      />
+    </>
   )
 }

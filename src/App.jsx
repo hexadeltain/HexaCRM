@@ -5,10 +5,12 @@ import { DashboardStats } from './components/DashboardStats'
 import { ArticleList } from './components/ArticleList'
 import { ArticleEditor } from './components/ArticleEditor'
 import { ArticlePreviewModal } from './components/ArticlePreviewModal'
+import { SocialPostModal } from './components/SocialPostModal'
 import { MediaUploadModal } from './components/MediaUploadModal'
 import { SettingsModal } from './components/SettingsModal'
 import { CategoriesPage } from './components/CategoriesPage'
 import { WidgetsPage } from './components/widgets/WidgetsPage'
+import { ScreenersPage } from './components/ScreenersPage'
 import { AnalyticsPage } from './components/analytics/AnalyticsPage'
 import {
   fetchArticles,
@@ -37,6 +39,7 @@ export default function App() {
   const [saving, setSaving] = useState(false)
   const [activeArticle, setActiveArticle] = useState(null)
   const [previewArticle, setPreviewArticle] = useState(null)
+  const [socialPostArticle, setSocialPostArticle] = useState(null)
 
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState('')
@@ -293,6 +296,7 @@ export default function App() {
           {section === 'widgets' && (
             <WidgetsPage presetArticleId={widgetForArticleId} onPresetConsumed={clearWidgetPreset} />
           )}
+          {section === 'screeners' && <ScreenersPage />}
           {section === 'analytics' && <AnalyticsPage />}
 
           {section === 'articles' && currentView === 'list' && (
@@ -315,6 +319,7 @@ export default function App() {
                 onNewArticle={handleNewArticle}
                 onEditArticle={handleEditArticle}
                 onPreviewArticle={handlePreviewArticle}
+                onSocialPostArticle={(art) => setSocialPostArticle(art)}
                 onQuickPublish={handleQuickPublish}
                 onArchiveArticle={handleArchiveArticle}
                 onAddWidget={handleAddWidget}
@@ -342,6 +347,22 @@ export default function App() {
           <ArticlePreviewModal
             article={previewArticle}
             onClose={() => setPreviewArticle(null)}
+          />
+        )}
+
+        {socialPostArticle && (
+          <SocialPostModal
+            article={socialPostArticle}
+            open={Boolean(socialPostArticle)}
+            onClose={() => setSocialPostArticle(null)}
+          />
+        )}
+
+        {socialPostArticle && (
+          <SocialPostModal
+            article={socialPostArticle}
+            open={Boolean(socialPostArticle)}
+            onClose={() => setSocialPostArticle(null)}
           />
         )}
 

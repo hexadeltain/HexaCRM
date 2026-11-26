@@ -135,6 +135,23 @@ export function slugify(text = '') {
     .slice(0, 100)
 }
 
+// Strip HTML tags and entities to produce clean plain text for social excerpts
+export function stripHtml(html = '') {
+  if (!html) return ''
+  return html
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 // Format readable dates
 export function formatDate(dateString) {
   if (!dateString) return ''

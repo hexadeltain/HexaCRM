@@ -26,13 +26,15 @@ import {
   ScheduleOutlined,
   InboxOutlined,
   DeleteOutlined,
-  CloseOutlined
+  CloseOutlined,
+  InstagramOutlined
 } from '@ant-design/icons'
 import { slugify, formatDateTime, cleanHtmlOutput } from '../utils/markdown'
 import { normalizeMediaUrl } from '../utils/media'
 import { uploadMedia } from '../api'
 import { useCategories } from '../hooks/useCategories'
 import { HtmlEditor } from './HtmlEditor'
+import { SocialPostModal } from './SocialPostModal'
 import dayjs from 'dayjs'
 
 const { Title, Text, Paragraph } = Typography
@@ -83,6 +85,7 @@ export function ArticleEditor({
 
   // Schedule Modal
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false)
+  const [isSocialModalOpen, setIsSocialModalOpen] = useState(false)
   const [scheduledDayjs, setScheduledDayjs] = useState(() => {
     if (article?.published_at && new Date(article.published_at) > new Date()) {
       return dayjs(article.published_at)
@@ -227,6 +230,15 @@ export function ArticleEditor({
         </Space>
 
         <Space className="article-editor-actions" wrap>
+          <Button
+            aria-label="Social Post"
+            title="Generate Social Media Marketing Post"
+            icon={<InstagramOutlined style={{ color: '#e1306c' }} />}
+            onClick={() => setIsSocialModalOpen(true)}
+          >
+            Social Post
+          </Button>
+
           <Button aria-label="Preview" title="Preview" icon={<EyeOutlined />} onClick={handlePreviewCurrent}>
             Preview
           </Button>
@@ -544,6 +556,17 @@ export function ArticleEditor({
           onChange={(val) => setScheduledDayjs(val)}
         />
       </Modal>
+
+      {/* Social Media Post Modal */}
+      <SocialPostModal
+        article={{
+          ...getPayload(),
+          cover: coverMedia,
+          author_name: article?.author_name
+        }}
+        open={isSocialModalOpen}
+        onClose={() => setIsSocialModalOpen(false)}
+      />
     </div>
   )
 }

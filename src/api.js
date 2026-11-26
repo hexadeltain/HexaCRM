@@ -290,3 +290,17 @@ export async function downloadAnalyticsExport(params) {
   link.remove()
   URL.revokeObjectURL(url)
 }
+
+// ── Screener sharing (Admin) ──────────────────────────────────────────────
+export const fetchScreenerAssignments = (params) =>
+  request(`/api/admin/screeners/assignments${qs(params)}`)
+
+export const sendScreenerToMobiles = (body) =>
+  request('/api/admin/screeners/send', { method: 'POST', body })
+
+export const withdrawScreenerAssignment = (id) =>
+  request(`/api/admin/screeners/assignments/${encodeURIComponent(id)}`, { method: 'DELETE' })
+
+export const fetchAdminStrategies = (params = { useScreener: '1' }) =>
+  request(`/strategies${qs(params)}`)
+

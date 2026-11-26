@@ -22,7 +22,8 @@ import {
   DeleteOutlined,
   ReloadOutlined,
   PictureOutlined,
-  NotificationOutlined
+  NotificationOutlined,
+  InstagramOutlined
 } from '@ant-design/icons'
 import { formatDate, formatDateTime } from '../utils/markdown'
 import { normalizeMediaUrl } from '../utils/media'
@@ -45,6 +46,7 @@ export function ArticleList({
   onQuickPublish,
   onArchiveArticle,
   onAddWidget,
+  onSocialPostArticle,
   onRefresh
 }) {
   const { categories } = useCategories()
@@ -198,6 +200,15 @@ export function ArticleList({
       align: 'right',
       render: (_, record) => (
         <Space size="small">
+          <Tooltip title="Social Post (Instagram)">
+            <Button
+              type="text"
+              size="small"
+              icon={<InstagramOutlined style={{ color: '#e1306c' }} />}
+              onClick={() => onSocialPostArticle?.(record)}
+            />
+          </Tooltip>
+
           <Tooltip title="Preview">
             <Button
               type="text"
