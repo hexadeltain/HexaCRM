@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   Modal,
   Button,
@@ -24,6 +24,8 @@ import { renderSocialPostToCanvas } from '../utils/socialCanvas'
 const { Text } = Typography
 const { TextArea } = Input
 
+const FONT_FAMILY = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+
 /**
  * Standalone Post Card Preview Component
  */
@@ -36,7 +38,8 @@ export function SocialPostCard({
   logoUrl = '/logo.png',
   brandName = 'Hexadelta.in',
   aspectRatio = 'portrait',
-  theme = 'light'
+  theme = 'light',
+  headlineWeight = '700'
 }) {
   const isDark = theme === 'dark'
 
@@ -46,11 +49,14 @@ export function SocialPostCard({
     story: { width: '100%', maxWidth: 360, minHeight: 640, aspectRatio: '9 / 16' }
   }
 
+  const numericWeight = headlineWeight === '800' ? 800 : headlineWeight === '600' ? 600 : 700
+
   return (
     <div
       className="social-post-card"
       style={{
         ...aspectStyles[aspectRatio],
+        fontFamily: FONT_FAMILY,
         background: isDark ? '#0f172a' : '#ffffff',
         color: isDark ? '#f8fafc' : '#0f172a',
         borderRadius: 16,
@@ -70,16 +76,24 @@ export function SocialPostCard({
     >
       {/* Top Header */}
       <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 42 }}>
           <img
             src={logoUrl}
             alt={brandName}
-            style={{ width: 26, height: 26, objectFit: 'contain' }}
+            style={{ width: 24, height: 24, objectFit: 'contain' }}
             onError={(e) => {
               e.currentTarget.style.display = 'none'
             }}
           />
-          <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.2 }}>
+          <span
+            style={{
+              fontFamily: FONT_FAMILY,
+              fontSize: 15,
+              fontWeight: 600,
+              color: isDark ? '#f8fafc' : '#111827',
+              letterSpacing: 0
+            }}
+          >
             {brandName}
           </span>
         </div>
@@ -87,12 +101,13 @@ export function SocialPostCard({
         {/* Headline */}
         <h2
           style={{
-            fontSize: 22,
-            fontWeight: 800,
-            lineHeight: 1.25,
-            color: isDark ? '#f8fafc' : '#0f172a',
-            margin: '0 0 18px 0',
-            letterSpacing: -0.3
+            fontFamily: FONT_FAMILY,
+            fontSize: 23,
+            fontWeight: numericWeight,
+            lineHeight: 1.36,
+            color: isDark ? '#ffffff' : '#0f172a',
+            margin: '0 0 20px 0',
+            letterSpacing: '-0.015em'
           }}
         >
           {headline || 'Your Blog Headline Here'}
@@ -101,10 +116,12 @@ export function SocialPostCard({
         {/* Body Text */}
         <p
           style={{
-            fontSize: 14,
-            lineHeight: 1.65,
-            color: isDark ? '#94a3b8' : '#27272a',
-            margin: '0 0 18px 0',
+            fontFamily: FONT_FAMILY,
+            fontSize: 14.5,
+            fontWeight: 400,
+            lineHeight: 1.68,
+            color: isDark ? '#94a3b8' : '#262626',
+            margin: '0 0 20px 0',
             whiteSpace: 'pre-wrap'
           }}
         >
@@ -115,18 +132,25 @@ export function SocialPostCard({
         {cta && (
           <p
             style={{
-              fontSize: 14,
+              fontFamily: FONT_FAMILY,
+              fontSize: 14.5,
+              fontWeight: 400,
               lineHeight: 1.5,
-              color: isDark ? '#cbd5e1' : '#18181b',
+              color: isDark ? '#cbd5e1' : '#262626',
               margin: '0 0 16px 0'
             }}
           >
             {cta.toLowerCase().startsWith('read more on ') ? (
               <>
-                Read more on <strong>{cta.slice(13) || 'hexadelta blogs.'}</strong>
+                Read more on{' '}
+                <strong style={{ fontWeight: 700, color: isDark ? '#ffffff' : '#0f172a' }}>
+                  {cta.slice(13) || 'hexadelta blogs.'}
+                </strong>
               </>
             ) : (
-              <strong>{cta}</strong>
+              <strong style={{ fontWeight: 700, color: isDark ? '#ffffff' : '#0f172a' }}>
+                {cta}
+              </strong>
             )}
           </p>
         )}
@@ -157,9 +181,10 @@ export function SocialPostCard({
           />
           <span
             style={{
+              fontFamily: FONT_FAMILY,
               fontSize: 15,
               fontWeight: 700,
-              color: isDark ? '#f8fafc' : '#0f172a'
+              color: isDark ? '#ffffff' : '#111827'
             }}
           >
             {authorName || 'Mehul Rajodiya'}
@@ -170,19 +195,20 @@ export function SocialPostCard({
   )
 }
 
-/**
- * Main Social Post Modal for Generating, Customizing, and Exporting Posts
- */
-export function SocialPostModal({ article, open, onClose }) {
-  // Format & Theme states
+function SocialPostForm({ article }) {
+  const defaultHeadline = article?.title || ''
+  const rawBody = article?.summary || stripHtml(article?.body || '')
+  const defaultBody = rawBody.length > 280 ? rawBody.slice(0, 275).trim() + '...' : rawBody
+  const defaultAuthor = article?.author_name || 'Mehul Rajodiya'
+
   const [aspectRatio, setAspectRatio] = useState('portrait') // 'portrait' | 'square' | 'story'
   const [theme, setTheme] = useState('light') // 'light' | 'dark'
+  const [headlineWeight, setHeadlineWeight] = useState('700') // '600' | '700' | '800'
 
-  // Editable Content states
-  const [headline, setHeadline] = useState('')
-  const [bodyText, setBodyText] = useState('')
+  const [headline, setHeadline] = useState(defaultHeadline)
+  const [bodyText, setBodyText] = useState(defaultBody)
   const [cta, setCta] = useState('Read more on hexadelta blogs.')
-  const [authorName, setAuthorName] = useState('Mehul Rajodiya')
+  const [authorName, setAuthorName] = useState(defaultAuthor)
   const avatarUrl = '/MehulRajodia.jpg'
   const logoUrl = '/logo.png'
   const [brandName, setBrandName] = useState('Hexadelta.in')
@@ -192,17 +218,12 @@ export function SocialPostModal({ article, open, onClose }) {
   const [copied, setCopied] = useState(false)
 
   const handleReset = () => {
-    if (article) {
-      setHeadline(article.title || '')
-      const initialBody = article.summary || stripHtml(article.body || '')
-      setBodyText(
-        initialBody.length > 280
-          ? initialBody.slice(0, 275).trim() + '...'
-          : initialBody
-      )
-      setAuthorName(article.author_name || 'Mehul Rajodiya')
-      setCta('Read more on hexadelta blogs.')
-    }
+    setHeadline(defaultHeadline)
+    setBodyText(defaultBody)
+    setAuthorName(defaultAuthor)
+    setCta('Read more on hexadelta blogs.')
+    setBrandName('Hexadelta.in')
+    setHeadlineWeight('700')
   }
 
   const handleDownload = async (format = 'png') => {
@@ -217,7 +238,8 @@ export function SocialPostModal({ article, open, onClose }) {
         logoUrl,
         brandName,
         aspectRatio,
-        theme
+        theme,
+        headlineWeight
       })
 
       const filename = `${slugify(headline || 'hexadelta')}-social-${aspectRatio}.${format}`
@@ -251,7 +273,8 @@ export function SocialPostModal({ article, open, onClose }) {
         logoUrl,
         brandName,
         aspectRatio,
-        theme
+        theme,
+        headlineWeight
       })
 
       canvas.toBlob(async (blob) => {
@@ -285,8 +308,188 @@ export function SocialPostModal({ article, open, onClose }) {
     }
   }
 
-  if (!article && !open) return null
+  return (
+    <Row gutter={[24, 24]} style={{ marginTop: 16 }}>
+      {/* Left Column: Edit Content & Settings */}
+      <Col xs={24} md={12}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div>
+            <Text strong style={{ display: 'block', marginBottom: 6 }}>
+              Format / Aspect Ratio
+            </Text>
+            <Segmented
+              block
+              value={aspectRatio}
+              onChange={setAspectRatio}
+              options={[
+                { label: '4:5 Portrait (IG Feed)', value: 'portrait' },
+                { label: '1:1 Square', value: 'square' },
+                { label: '9:16 Story', value: 'story' }
+              ]}
+            />
+          </div>
 
+          <Row gutter={12}>
+            <Col span={12}>
+              <Text strong style={{ display: 'block', marginBottom: 6 }}>
+                Card Theme
+              </Text>
+              <Segmented
+                block
+                value={theme}
+                onChange={setTheme}
+                options={[
+                  { label: 'Clean White', value: 'light' },
+                  { label: 'Dark Terminal', value: 'dark' }
+                ]}
+              />
+            </Col>
+            <Col span={12}>
+              <Text strong style={{ display: 'block', marginBottom: 6 }}>
+                Headline Weight
+              </Text>
+              <Segmented
+                block
+                value={headlineWeight}
+                onChange={setHeadlineWeight}
+                options={[
+                  { label: 'Bold (700)', value: '700' },
+                  { label: 'Semi (600)', value: '600' },
+                  { label: 'Heavy (800)', value: '800' }
+                ]}
+              />
+            </Col>
+          </Row>
+
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <Text strong>Post Headline</Text>
+              <Button type="link" size="small" icon={<UndoOutlined />} onClick={handleReset} style={{ padding: 0 }}>
+                Reset to Article
+              </Button>
+            </div>
+            <Input
+              value={headline}
+              onChange={(e) => setHeadline(e.target.value)}
+              placeholder="What happens when a stock enters in ban list?"
+            />
+          </div>
+
+          <div>
+            <Text strong style={{ display: 'block', marginBottom: 6 }}>
+              Post Description / Excerpt
+            </Text>
+            <TextArea
+              rows={4}
+              value={bodyText}
+              onChange={(e) => setBodyText(e.target.value)}
+              placeholder="How options selling in ban period can be so much fun trading..."
+            />
+          </div>
+
+          <div>
+            <Text strong style={{ display: 'block', marginBottom: 6 }}>
+              Call To Action
+            </Text>
+            <Input
+              value={cta}
+              onChange={(e) => setCta(e.target.value)}
+              placeholder="Read more on hexadelta blogs."
+            />
+          </div>
+
+          <Row gutter={12}>
+            <Col span={12}>
+              <Text strong style={{ display: 'block', marginBottom: 6 }}>
+                Author Name
+              </Text>
+              <Input
+                value={authorName}
+                onChange={(e) => setAuthorName(e.target.value)}
+                placeholder="Mehul Rajodiya"
+              />
+            </Col>
+            <Col span={12}>
+              <Text strong style={{ display: 'block', marginBottom: 6 }}>
+                Brand Text
+              </Text>
+              <Input
+                value={brandName}
+                onChange={(e) => setBrandName(e.target.value)}
+                placeholder="Hexadelta.in"
+              />
+            </Col>
+          </Row>
+
+          <div style={{ paddingTop: 8 }}>
+            <Space wrap size="middle">
+              <Button
+                type="primary"
+                icon={<DownloadOutlined />}
+                loading={downloading}
+                onClick={() => handleDownload('png')}
+              >
+                Download PNG (1080p)
+              </Button>
+
+              <Button
+                icon={copied ? <CheckOutlined style={{ color: '#52c41a' }} /> : <CopyOutlined />}
+                loading={copying}
+                onClick={handleCopyClipboard}
+              >
+                {copied ? 'Copied!' : 'Copy to Clipboard'}
+              </Button>
+
+              <Button
+                icon={<DownloadOutlined />}
+                onClick={() => handleDownload('jpeg')}
+              >
+                JPEG
+              </Button>
+            </Space>
+          </div>
+        </div>
+      </Col>
+
+      {/* Right Column: Live WYSIWYG Preview */}
+      <Col
+        xs={24}
+        md={12}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(0, 0, 0, 0.03)',
+          borderRadius: 12,
+          padding: 20
+        }}
+      >
+        <Text type="secondary" style={{ fontSize: 12, marginBottom: 12 }}>
+          Live Social Media Post Preview:
+        </Text>
+
+        <SocialPostCard
+          headline={headline}
+          bodyText={bodyText}
+          cta={cta}
+          authorName={authorName}
+          avatarUrl={avatarUrl}
+          logoUrl={logoUrl}
+          brandName={brandName}
+          aspectRatio={aspectRatio}
+          theme={theme}
+          headlineWeight={headlineWeight}
+        />
+      </Col>
+    </Row>
+  )
+}
+
+/**
+ * Main Social Post Modal for Generating, Customizing, and Exporting Posts
+ */
+export function SocialPostModal({ article, open, onClose }) {
   return (
     <Modal
       title={
@@ -296,168 +499,13 @@ export function SocialPostModal({ article, open, onClose }) {
           <Tag color="purple">Instagram / LinkedIn</Tag>
         </div>
       }
-      open={open}
+      open={open && Boolean(article)}
       onCancel={onClose}
       footer={null}
       width={940}
       destroyOnClose
     >
-      <Row gutter={[24, 24]} style={{ marginTop: 16 }}>
-        {/* Left Column: Edit Content & Settings */}
-        <Col xs={24} md={12}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div>
-              <Text strong style={{ display: 'block', marginBottom: 6 }}>
-                Format / Aspect Ratio
-              </Text>
-              <Segmented
-                block
-                value={aspectRatio}
-                onChange={setAspectRatio}
-                options={[
-                  { label: '4:5 Portrait (IG Feed)', value: 'portrait' },
-                  { label: '1:1 Square', value: 'square' },
-                  { label: '9:16 Story', value: 'story' }
-                ]}
-              />
-            </div>
-
-            <div>
-              <Text strong style={{ display: 'block', marginBottom: 6 }}>
-                Card Theme
-              </Text>
-              <Segmented
-                block
-                value={theme}
-                onChange={setTheme}
-                options={[
-                  { label: 'Clean White (Recommended)', value: 'light' },
-                  { label: 'Dark Terminal', value: 'dark' }
-                ]}
-              />
-            </div>
-
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <Text strong>Post Headline</Text>
-                <Button type="link" size="small" icon={<UndoOutlined />} onClick={handleReset} style={{ padding: 0 }}>
-                  Reset to Article
-                </Button>
-              </div>
-              <Input
-                value={headline}
-                onChange={(e) => setHeadline(e.target.value)}
-                placeholder="What happens when a stock enters in ban list?"
-              />
-            </div>
-
-            <div>
-              <Text strong style={{ display: 'block', marginBottom: 6 }}>
-                Post Description / Excerpt
-              </Text>
-              <TextArea
-                rows={4}
-                value={bodyText}
-                onChange={(e) => setBodyText(e.target.value)}
-                placeholder="How options selling in ban period can be so much fun trading..."
-              />
-            </div>
-
-            <div>
-              <Text strong style={{ display: 'block', marginBottom: 6 }}>
-                Call To Action
-              </Text>
-              <Input
-                value={cta}
-                onChange={(e) => setCta(e.target.value)}
-                placeholder="Read more on hexadelta blogs."
-              />
-            </div>
-
-            <Row gutter={12}>
-              <Col span={12}>
-                <Text strong style={{ display: 'block', marginBottom: 6 }}>
-                  Author Name
-                </Text>
-                <Input
-                  value={authorName}
-                  onChange={(e) => setAuthorName(e.target.value)}
-                  placeholder="Mehul Rajodiya"
-                />
-              </Col>
-              <Col span={12}>
-                <Text strong style={{ display: 'block', marginBottom: 6 }}>
-                  Brand Text
-                </Text>
-                <Input
-                  value={brandName}
-                  onChange={(e) => setBrandName(e.target.value)}
-                  placeholder="Hexadelta.in"
-                />
-              </Col>
-            </Row>
-
-            <div style={{ paddingTop: 8 }}>
-              <Space wrap size="middle">
-                <Button
-                  type="primary"
-                  icon={<DownloadOutlined />}
-                  loading={downloading}
-                  onClick={() => handleDownload('png')}
-                >
-                  Download PNG (1080p)
-                </Button>
-
-                <Button
-                  icon={copied ? <CheckOutlined style={{ color: '#52c41a' }} /> : <CopyOutlined />}
-                  loading={copying}
-                  onClick={handleCopyClipboard}
-                >
-                  {copied ? 'Copied!' : 'Copy to Clipboard'}
-                </Button>
-
-                <Button
-                  icon={<DownloadOutlined />}
-                  onClick={() => handleDownload('jpeg')}
-                >
-                  JPEG
-                </Button>
-              </Space>
-            </div>
-          </div>
-        </Col>
-
-        {/* Right Column: Live WYSIWYG Preview */}
-        <Col
-          xs={24}
-          md={12}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'rgba(0, 0, 0, 0.03)',
-            borderRadius: 12,
-            padding: 20
-          }}
-        >
-          <Text type="secondary" style={{ fontSize: 12, marginBottom: 12 }}>
-            Live Social Media Post Preview:
-          </Text>
-
-          <SocialPostCard
-            headline={headline}
-            bodyText={bodyText}
-            cta={cta}
-            authorName={authorName}
-            avatarUrl={avatarUrl}
-            logoUrl={logoUrl}
-            brandName={brandName}
-            aspectRatio={aspectRatio}
-            theme={theme}
-          />
-        </Col>
-      </Row>
+      {article && <SocialPostForm key={article.id || article.title || 'post'} article={article} />}
     </Modal>
   )
 }

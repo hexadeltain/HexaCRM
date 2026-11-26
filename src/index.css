@@ -671,7 +671,8 @@ body {
 
 /* Social Media Post Card (Instagram Marketing Preview) */
 .social-post-card {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  letter-spacing: -0.01em;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 

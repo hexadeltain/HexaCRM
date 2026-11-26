@@ -1,3 +1,5 @@
+const FONT_FAMILY = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+
 /**
  * Text wrapping helper for HTML5 Canvas
  */
@@ -43,13 +45,21 @@ export async function renderSocialPostToCanvas({
   logoUrl = '/logo.png',
   brandName = 'Hexadelta.in',
   aspectRatio = 'portrait', // 'portrait' (4:5) | 'square' (1:1) | 'story' (9:16)
-  theme = 'light'
+  theme = 'light',
+  headlineWeight = '700' // '600' | '700' | '800'
 }) {
   const isDark = theme === 'dark'
   const width = 1080
   let height = 1350 // Default 4:5 Instagram Portrait (1080x1350)
   if (aspectRatio === 'square') height = 1080
   if (aspectRatio === 'story') height = 1920
+
+  // Ensure Google font Inter is loaded before canvas rasterizes text
+  if (typeof document !== 'undefined' && document.fonts) {
+    try {
+      await document.fonts.ready
+    } catch {}
+  }
 
   const canvas = document.createElement('canvas')
   canvas.width = width
@@ -81,40 +91,39 @@ export async function renderSocialPostToCanvas({
   const contentWidth = width - paddingX * 2
   let curY = 96
 
-  // 1. Top Brand Header
+  // 1. Top Brand Header: SemiBold (600), clean and refined
   if (logoImg) {
-    const logoSize = 56
+    const logoSize = 52
     ctx.drawImage(logoImg, paddingX, curY, logoSize, logoSize)
-    ctx.font = '700 36px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    ctx.font = `600 34px ${FONT_FAMILY}`
     ctx.fillStyle = isDark ? '#ffffff' : '#111827'
     ctx.textBaseline = 'middle'
     ctx.fillText(brandName || 'Hexadelta.in', paddingX + logoSize + 18, curY + logoSize / 2)
-    curY += logoSize + 60
+    curY += logoSize + 85
   } else {
-    ctx.font = '700 36px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    ctx.font = `600 34px ${FONT_FAMILY}`
     ctx.fillStyle = isDark ? '#ffffff' : '#111827'
     ctx.textBaseline = 'top'
     ctx.fillText(brandName || 'Hexadelta.in', paddingX, curY)
-    curY += 80
+    curY += 100
   }
 
-  // 2. Headline / Title
-  curY += 24
-  ctx.font = '800 52px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-  ctx.fillStyle = isDark ? '#f8fafc' : '#0f172a'
+  // 2. Headline / Title: Bold (700) with breathable 1.38 line height
+  ctx.font = `${headlineWeight || '700'} 52px ${FONT_FAMILY}`
+  ctx.fillStyle = isDark ? '#ffffff' : '#0f172a'
   ctx.textBaseline = 'top'
-  const titleLineHeight = 70
+  const titleLineHeight = 74
   const titleLines = getCanvasWrappedLines(ctx, headline, contentWidth)
   for (const line of titleLines) {
     ctx.fillText(line, paddingX, curY)
     curY += titleLineHeight
   }
 
-  // 3. Body / Excerpt
-  curY += 36
-  ctx.font = '400 32px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-  ctx.fillStyle = isDark ? '#94a3b8' : '#27272a'
-  const bodyLineHeight = 52
+  // 3. Body / Excerpt: Regular (400) with comfortable 54px line height
+  curY += 44
+  ctx.font = `400 32px ${FONT_FAMILY}`
+  ctx.fillStyle = isDark ? '#94a3b8' : '#262626'
+  const bodyLineHeight = 54
   const bodyLines = getCanvasWrappedLines(ctx, bodyText, contentWidth)
 
   // Reserve space for CTA, divider and author footer
@@ -131,7 +140,7 @@ export async function renderSocialPostToCanvas({
     curY += bodyLineHeight
   }
 
-  // 4. Call To Action (CTA)
+  // 4. Call To Action (CTA): "Read more on " (400) + "hexadelta blogs." (700)
   curY += 44
   if (cta) {
     ctx.textBaseline = 'top'
@@ -141,30 +150,31 @@ export async function renderSocialPostToCanvas({
 
     if (cta.toLowerCase().startsWith('read more on ')) {
       highlight = cta.slice(13)
-      ctx.font = '400 32px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      ctx.fillStyle = isDark ? '#cbd5e1' : '#18181b'
+      ctx.font = `400 32px ${FONT_FAMILY}`
+      ctx.fillStyle = isDark ? '#cbd5e1' : '#262626'
       ctx.fillText(prefix, paddingX, curY)
       const prefixWidth = ctx.measureText(prefix).width
 
-      ctx.font = '700 32px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      ctx.font = `700 32px ${FONT_FAMILY}`
+      ctx.fillStyle = isDark ? '#ffffff' : '#0f172a'
       ctx.fillText(highlight, paddingX + prefixWidth, curY)
     } else {
-      ctx.font = '700 32px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      ctx.fillStyle = isDark ? '#cbd5e1' : '#18181b'
+      ctx.font = `700 32px ${FONT_FAMILY}`
+      ctx.fillStyle = isDark ? '#ffffff' : '#0f172a'
       ctx.fillText(customText, paddingX, curY)
     }
   }
 
   // 5. Divider Line
   const dividerY = height - 170
-  ctx.strokeStyle = isDark ? '#334155' : '#e2e8f0'
+  ctx.strokeStyle = isDark ? '#334155' : '#e5e7eb'
   ctx.lineWidth = 2
   ctx.beginPath()
   ctx.moveTo(paddingX, dividerY)
   ctx.lineTo(width - paddingX, dividerY)
   ctx.stroke()
 
-  // 6. Author Row
+  // 6. Author Row: Circular avatar + Author name (700)
   const avatarY = height - 94
   const avatarRadius = 40
   const avatarCenterX = paddingX + avatarRadius
@@ -193,8 +203,8 @@ export async function renderSocialPostToCanvas({
   }
 
   // Author Name
-  ctx.font = '700 36px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-  ctx.fillStyle = isDark ? '#f8fafc' : '#0f172a'
+  ctx.font = `700 34px ${FONT_FAMILY}`
+  ctx.fillStyle = isDark ? '#ffffff' : '#111827'
   ctx.textBaseline = 'middle'
   ctx.fillText(
     authorName || 'Mehul Rajodiya',
