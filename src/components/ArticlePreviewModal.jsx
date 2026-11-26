@@ -70,7 +70,11 @@ export function ArticlePreviewModal({ article, onClose }) {
               logoUrl="/logo.png"
               brandName="Hexadelta.in"
               aspectRatio="portrait"
-              theme="light"
+              theme="dark"
+              layoutStyle="floating"
+              gradientGlow="warm"
+              categoryTag={article.category ? article.category.toUpperCase() : 'BLOG'}
+              dateText={article.published_at ? formatDate(article.published_at) : ''}
             />
           </div>
         ) : (
